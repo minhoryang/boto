@@ -103,6 +103,7 @@ class StreamingStep(Step):
                  action_on_failure='TERMINATE_JOB_FLOW',
                  cache_files=None, cache_archives=None,
                  step_args=None, input=None, output=None,
+                 files=None,
                  jar='/home/hadoop/contrib/streaming/hadoop-streaming.jar'):
         """
         A hadoop streaming elastic mapreduce step
@@ -130,6 +131,8 @@ class StreamingStep(Step):
         :param input: The input uri
         :type output: str
         :param output: The output uri
+        :type files: list(str)
+        :param files: A list of files to be bundled with the job
         :type jar: str
         :param jar: The hadoop streaming jar. This can be either a local
             path on the master node, or an s3:// URI.
@@ -143,6 +146,7 @@ class StreamingStep(Step):
         self.cache_archives = cache_archives
         self.input = input
         self.output = output
+        self.files = files
         self._jar = jar
 
         if isinstance(step_args, six.string_types):
@@ -182,6 +186,9 @@ class StreamingStep(Step):
                 args.extend(('-input', self.input))
         if self.output:
             args.extend(('-output', self.output))
+
+        if self.files:
+            args.extend(('-files', ','.join(self.files)))
 
         if self.cache_files:
             for cache_file in self.cache_files:
